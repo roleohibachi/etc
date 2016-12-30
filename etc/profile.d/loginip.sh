@@ -6,12 +6,20 @@
 if [ -n "$SSH_CLIENT" ]
 then
   set $SSH_CLIENT
-  coords=`/usr/bin/curl -s https://ipinfo.io/$1/loc` & \
-  mycoords=`/usr/bin/curl -s https://ipinfo.io/loc`
-  if [ $coords == "undefined" ]
-  then
-    /usr/bin/echo "Your last hop is $1"
+
+  #room for performance improvement here, if you can figure out how to parallelize.
+  #and dont write to a file, thats cheating.
+  CLIENTLOC=$(/usr/bin/curl -s https://ipinfo.io/$1/loc )
+  SERVERLOC=$(/usr/bin/curl -s https://ipinfo.io/loc )
+
+    if [ $CLIENTLOC == "undefined" ]; then
+      if [ $(dig +short -x $1) ]; then
+        /usr/bin/echo "Your last hop is $(dig +short -x $1)"
+      else
+        /usr/bin/echo "Your last hop is $1."
+      fi
   else
-  	/usr/bin/python -c "from geopy.distance import vincenty;start=('$coords');end=('$mycoords');print('Your last hop is ' + str(format(vincenty(start,end).miles,'.2f')) + ' miles away.')"
+    /usr/bin/python -c "from geopy.distance import vincenty;start=('$CLIENTLOC');end=('$SERVERLOC');print('Your last hop is ' + str(format(vincenty(start,end).miles,'.2f')) + ' miles away.')"
   fi
 fi
+
