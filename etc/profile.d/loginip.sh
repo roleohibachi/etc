@@ -9,6 +9,7 @@ then
 
   #room for performance improvement here, if you can figure out how to parallelize.
   #and dont write to a file, thats cheating.
+  #Possibly by backgrounding them as jobs, then using a while loop to wait for both to be populated?
   CLIENTLOC=$(/usr/bin/curl -s https://ipinfo.io/$1/loc )
   SERVERLOC=$(/usr/bin/curl -s https://ipinfo.io/loc )
 
